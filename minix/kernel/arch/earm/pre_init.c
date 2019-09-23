@@ -428,9 +428,9 @@ static int parse_device_tree (char *bootargs)
 
 	TRY_OR_RETURN(fdt_is_compatible (dev_tree));
 	TRY_OR_RETURN(fdt_step_node(dev_tree, fdt_set_machine_type, &machine));
-	TRY_OR_RETURN(fdt_step_node(dev_tree, fdt_set_bootargs, bootargs));
+	TRY_OR_RETURN(fdt_step_node(dev_tree, fdt_set_bootargs, &bootargs));
 
-	return 0;		
+	return (int) bootargs;		
 }
 
 void read_tsc_64(u64_t * t) 
@@ -464,16 +464,19 @@ kinfo_t *pre_init(int argc, char **argv)
 		POORMANS_FAILURE_NOTIFICATION;
 	}
 
-	parse_device_tree(bootargs);
+	bootargs = (char *)parse_device_tree(bootargs);
+
+	if((int) bootargs == 0 || (int) bootargs == -1)
+		bootargs = argv[1];
 	
-	set_machine_id(argv[1]);
+	set_machine_id(bootargs);
 
 	set_bsp_table();
 
 	/* Get our own copy boot params pointed to by r1.
 	 * Here we find out whether we should do serial output.
 	 */
-	get_parameters(&kinfo, argv[1]);
+	get_parameters(&kinfo, bootargs);
 
 	return &kinfo;
 }

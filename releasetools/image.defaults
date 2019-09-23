@@ -34,6 +34,4 @@ MODDIR=${DESTDIR}/boot/minix/.temp
 : ${U_BOOT_BRANCH=minix}
 : ${U_BOOT_REVISION=cb5178f12787c690cb1c888d88733137e5a47b15}
 
-: ${RPI_FIRMWARE_URL=https://github.com/boricj/rpi-firmware.git}
-: ${RPI_FIRMWARE_BRANCH=master}
-: ${RPI_FIRMWARE_REVISION=ccbca2eadd09dc550968839f227ecd0323cdbf22}
+: ${RPI_FIRMWARE_URL=https://github.com/raspberrypi/firmware/archive/master.zip}

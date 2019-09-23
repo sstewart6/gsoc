@@ -208,7 +208,7 @@ proto.dev.mtree:
 		>${.TARGET}.tmp && \
 	echo "./dev type=dir uname=root gname=operator mode=0755" \
 		>>${.TARGET}.tmp && \
-	${NETBSDSRCDIR}/minix/commands/MAKEDEV/MAKEDEV.sh -m -r \
+	${NETBSDSRCDIR}/minix/commands/MAKEDEV/MAKEDEV.sh -m -s \
 		>> ${.TARGET}.tmp && mv ${.TARGET}.tmp ${.TARGET}
 
 # We have to remove the two first entries of the generated proto file, as

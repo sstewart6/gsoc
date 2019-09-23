@@ -26,10 +26,12 @@ int fdt_set_machine_type (void *fdt, int offset, void *dst)
 
 int fdt_set_bootargs (void *fdt, int offset, void *dst)
 {
-	char *bootargs = (char *)dst;
+	char **bootargs_ptr = (char **)dst;
+	char *bootargs;
 	bootargs = (char *)fdt_getprop(fdt, offset, "bootargs", NULL);
 	if (bootargs == NULL)
 		return -1;
+	*bootargs_ptr = &bootargs[0];
 	return 0;
 }
 

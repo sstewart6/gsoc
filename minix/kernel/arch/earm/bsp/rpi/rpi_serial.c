@@ -55,16 +55,11 @@ rpi_ser_init()
 	assert(pl011_serial.base);
 
 	/* Set UART to 115200 bauds */
-	if (BOARD_IS_RPI_2_B(machine.board_id)) {
-		/* UARTCLK=48MHz */
-		mmio_write(pl011_serial.base + PL011_IBRD, 1);
-		mmio_write(pl011_serial.base + PL011_FBRD, 40);
-	}
-	else if (BOARD_IS_RPI_3_B(machine.board_id)) {
-		/* UARTCLK=3MHz */
-		mmio_write(pl011_serial.base + PL011_IBRD, 26);
-		mmio_write(pl011_serial.base + PL011_FBRD, 3);
-	}
+	/* UARTCLK=48MHz */
+	/* If board is rpi3 use dtoverlay=pi3-disable-bt to disable bluetooth */
+	/* and use uart0. */
+	mmio_write(pl011_serial.base + PL011_IBRD, 26);
+	mmio_write(pl011_serial.base + PL011_FBRD, 3);
 
 	mmio_write(pl011_serial.base + PL011_LCRH, 0x70);
 	mmio_write(pl011_serial.base + PL011_CR, 0x301);

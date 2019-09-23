@@ -3,8 +3,13 @@ PROGS=      mmc emmc
 MAN.mmc=
 MAN.emmc=
 
-SRCS.mmc=  mmcblk.c mmchost_dummy.c sdhcreg.h sdmmcreg.h
-SRCS.mmc += mmchost_mmchs.c 
+.if ${BSP_NAME} == "rpi"
+CPPFLAGS.bcm2835_sdhost.c+= -I${NETBSDSRCDIR}/minix
+CPPFLAGS.bcm2835_sdhost.c+= -I${NETBSDSRCDIR}/minix/kernel/arch/earm/include
+SRCS.mmc = bcm2835_sdhost.c mmcblk.c mmchost_dummy.c bcm2835_sdhost.h sdhcreg.h
+.else
+SRCS.mmc = mmchost_mmchs.c mmcblk.c mmchost_dummy.c sdhcreg.h sdmmcreg.h
+.endif
 SRCS.emmc= emmc.c mmcblk.c
 
 DPADD+=	${LIBBLOCKDRIVER} ${LIBSYS}

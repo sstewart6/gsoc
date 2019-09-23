@@ -2,6 +2,7 @@
 #include "bsp_init.h"
 #include "bsp_padconf.h"
 #include "bsp_reset.h"
+#include "rpi_sd.h"
 
 void
 rpi_init()
@@ -14,4 +15,7 @@ rpi_init()
 
 	/* disable watchdog */
 	rpi_disable_watchdog();
+
+	/* init sd host controller */
+	rpi_sd_init();
 }

@@ -94,6 +94,10 @@ rpi_timer_init(unsigned freq)
 		arm_timer.st_workaround = 0;
 		arm_timer.irq_nr = RPI_IRQ_ST_C3;
 
+		/* If we are not implementing the QEMU workaround mask the virtual
+			interrupt so we don't get spurious IRQ 3s */
+		write_cntv_ctl(ARMTIMER_IMASK);
+
 		/* the timer is also mapped in user space hence the this */
 		/* second mapping and callback to set kerninfo frclock_tcrr */
 		kern_req_phys_map(arm_timer.st_base, ARM_PAGE_SIZE,

@@ -196,6 +196,8 @@ static int get_part_table(
   iovec_t iovec1;
   u64_t position;
   int r;
+  char *src, *dst;
+  int len;
 
   position = (u64_t)offset * SECTOR_SIZE;
   iovec1.iov_addr = (vir_bytes) tmp_buf;
@@ -209,7 +211,10 @@ static int get_part_table(
 	/* Invalid partition table. */
 	return 0;
   }
-  memcpy(table, (tmp_buf + PART_TABLE_OFF), NR_PARTITIONS * sizeof(table[0]));
+  src = (char *) (tmp_buf + PART_TABLE_OFF);
+  dst = (char *) table;
+  for(len = 0;len < (int) (NR_PARTITIONS * sizeof(table[0])); len++)
+    dst[len] = src[len];
   return 1;
 }
 

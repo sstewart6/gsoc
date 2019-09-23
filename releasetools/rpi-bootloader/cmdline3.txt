@@ -1,0 +1,1 @@
+board_name=RPI_3_B console=tty00 rootdevname=c0d0p1 verbose=1 log_level=4

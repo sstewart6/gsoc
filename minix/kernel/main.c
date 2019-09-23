@@ -122,6 +122,7 @@ void kmain(kinfo_t *local_cbi)
   register struct proc *rp;	/* process pointer */
   register int i, j;
   static int bss_test;
+  char *param;
 
   /* bss sanity check */
   assert(bss_test == 0);
@@ -150,6 +151,14 @@ void kmain(kinfo_t *local_cbi)
   /* We want to initialize serial before we do any output */
   arch_ser_init();
 #endif
+
+  param = kinfo.param_buf;
+  printf("bootparms: ");
+  while(*param) {
+	printf("%s ", param);
+	param += (strlen(param) + 1);
+  }
+  printf("\n");
 
   BKL_LOCK();
  
