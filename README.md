@@ -18,11 +18,8 @@ In order to re-enable the UART, a device tree overlay has been added.  The confi
 There is an issue with builing gmake.  Newer version of make must have this fixed by now, but the version that is called in by minix does not.
 
 in external/gpl2/gmake/dist/configure the line:
-
 if _GNU_GLOB_INTERFACE_VERSION == GLOB_INTERFACE_VERSION
-
 needs to be changed to :
-
 if _GNU_GLOB_INTERFACE_VERSION >= GLOB_INTERFACE_VERSION
 
 To build run
