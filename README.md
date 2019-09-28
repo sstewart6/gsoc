@@ -18,11 +18,9 @@ On the RPI3 the main UART has been replaced with Bluetooth. <br />
 
 https://www.briandorey.com/post/raspberry-pi-3-uart-boot-overlay-part-two
 
-In order to re-enable the UART, a device tree overlay has been added.  The config.txt created by the build will enable this <br />
-overlay.
+In order to re-enable the UART, a device tree overlay has been added.  The config.txt created by the build will enable this overlay. <br />
 
-There is an issue with builing gmake.  Newer version of make must have this fixed by now, but the version that is called in by <br />
-minix does not.
+There is an issue with builing gmake.  Newer version of make must have this fixed by now, but the version that is called in by minix does not. <br />
 
 in external/gpl2/gmake/dist/configure the line: <br />
 if _GNU_GLOB_INTERFACE_VERSION == GLOB_INTERFACE_VERSION <br />
