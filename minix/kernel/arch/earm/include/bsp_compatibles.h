@@ -6,6 +6,7 @@ char *pi_compat_tb[] = {
 	"brcm,bcm2709",
 	"brcm,bcm2710",
 	"brcm,bcm2836",
+	"raspberrypi,3-model-b",
 	"brcm,bcm2837",
 	NULL
 };
