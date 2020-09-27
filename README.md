@@ -41,4 +41,4 @@ export HOST_CFLAGS="-O2 -fcommon" <br />
 export RPI_VER=4" <br />
 ./releasetools/arm_sdimage_rpi.sh <br />
 
-[^1]: gcc v10 defaults to -fno-common which causes errors for global variables in the tools build, so the -fcommon option is required.
+gcc v10 defaults to -fno-common which causes errors for global variables in the tools build, so the -fcommon option is required. [^1]
