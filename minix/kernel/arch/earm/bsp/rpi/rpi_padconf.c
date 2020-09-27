@@ -48,6 +48,10 @@ rpi_padconf_init(void)
 		rpi2_padconf.base = PADCONF_RPI2_REGISTERS_BASE;
 		rpi2_padconf.offset = PADCONF_RPI2_REGISTERS_OFFSET;
 		rpi2_padconf.size = PADCONF_RPI2_REGISTERS_SIZE;
+	} else if(BOARD_IS_RPI_4_B(machine.board_id)) { 
+		rpi2_padconf.base = PADCONF_RPI4_REGISTERS_BASE;
+		rpi2_padconf.offset = PADCONF_RPI2_REGISTERS_OFFSET;
+		rpi2_padconf.size = PADCONF_RPI2_REGISTERS_SIZE;
 	}
 
 	kern_phys_map_ptr(rpi2_padconf.base, rpi2_padconf.size,

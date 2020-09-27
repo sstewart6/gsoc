@@ -1,6 +1,6 @@
 #include <sys/types.h>
 #include <io.h>
-#include "rpi_sd.h"
+#include "rpi_gpio.h"
 
 /*
 Set GPIO pins for SD controller
@@ -23,6 +23,14 @@ void rpi_sd_init(void) {
 	/* set bits 30-27 b100 func 0 fsel49 SD0_CMD */
 	mmio_set(GPIO_BASE + GPIO_GPFSEL4, (4 << 27)); 
 
+	mmio_set(GPIO_BASE + GPIO_GPPUD, 0);
+	mmio_set(GPIO_BASE + GPIO_GPPUD, ((4 << 24) | (4 << 27)));
+	mmio_set(GPIO_BASE + GPIO_GPPUDCLK0, ((4 << 24) | (4 << 27)));
+
+	int i = 150;
+	while(i)
+		--i;
+
 	/* clear bits 0-2 */
 	mmio_clear(GPIO_BASE + GPIO_GPFSEL5, 7); 
 	/* set bits 0-2 b100 func 0 fsel50 SD0_DAT0 */
@@ -43,4 +51,10 @@ void rpi_sd_init(void) {
 	/* set bits 0-2 b100 func 0 fsel53 SD0_DAT3 */
 	mmio_set(GPIO_BASE + GPIO_GPFSEL5, (4 << 9)); 
 
+	mmio_set(GPIO_BASE + GPIO_GPPUD, 0);
+	mmio_set(GPIO_BASE + GPIO_GPPUDCLK1, ((4 | (4 << 3) | (4 << 6) | (4 << 9))));
+
+	i = 150;
+	while(i)
+		--i;
 }

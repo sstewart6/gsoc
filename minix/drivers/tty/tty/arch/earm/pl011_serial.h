@@ -2,7 +2,10 @@
 #define _PL011_SERIAL_H
 
 /* UART register map */
-#define PL011_UART0_BASE 0x3f201000	/* UART0 physical address */
+#define PL011_UART0_BASE 0x3f201000 	/* UART0 physical address */
+#define PL011_UART0_IRQ			121 	/* UART0 RPI2/3 IRQ */
+#define PL011_UART0_BASE_RPI4 0xfe201000 	/* UART0 physical address rpi4 */
+#define PL011_UART0_IRQ_RPI4	153		 	/* UART0 RPI4 IRQ */
 
 /* UART registers */
 #define PL011_DR		0x000	/* Data register, */

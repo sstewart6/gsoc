@@ -4,6 +4,8 @@
 #include <minix/vm.h>
 #include <sys/mman.h>
 #include <minix/log.h>
+#include <minix/syslib.h>
+#include <minix/board.h>
 
 #include "mbox.h"
 
@@ -12,7 +14,8 @@
 
 #define SANE_TIMEOUT 500000	/* 500 ms */
 
-#define MBOX_IRQ 33
+#define MBOX_IRQ 		33
+#define MBOX_IRQ_RPI4	65
 
 /* SEF functions and variables. */
 static void sef_local_startup(void);
@@ -78,12 +81,18 @@ static int sef_cb_init_fresh(int UNUSED(type), sef_init_info_t *UNUSED(info))
 	/* Initialize the random driver. */
 	static struct k_randomness krandom;
 	int i, s;
+	unsigned int mbox_irq = MBOX_IRQ;
+	struct machine machine;
 
 	mailbox_init();
 
-	if (sys_irqsetpolicy(MBOX_IRQ, 0, &hook_id) != OK) {
-		log_warn(&log, "mailbox: couldn't set IRQ policy %d\n",
-		    MBOX_IRQ);
+	sys_getinfo(GET_MACHINE, &machine, sizeof(machine), 0, 0);
+	if(BOARD_IS_RPI_4_B(machine.board_id)){
+		mbox_irq = MBOX_IRQ_RPI4;
+	}
+
+	if (sys_irqsetpolicy(mbox_irq, 0, &hook_id) != OK) {
+		log_warn(&log, "mailbox: couldn't set IRQ policy %d\n", mbox_irq);
 		return(EPERM);
 	}
 

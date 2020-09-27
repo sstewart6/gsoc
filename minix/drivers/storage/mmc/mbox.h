@@ -1,0 +1,8 @@
+#ifndef _MBOX_H_
+#define _MBOX_H_
+#define MBOX_GET_POWER 0x00020001
+#define MBOX_GET_CLOCK 0x00030002
+#define MBOX_SET_POWER 0x00028001
+#define MBOX_EMMC_CLOCK 0x00000001
+#define MBOX_EMMC2_CLOCK 0x0000000c
+#endif /* _MBOX_H_ */

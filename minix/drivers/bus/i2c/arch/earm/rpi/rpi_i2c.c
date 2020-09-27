@@ -561,6 +561,14 @@ rpi_interface_setup(int (**process) (minix_i2c_ioctl_exec_t * ioctl_exec),
 	if (BOARD_IS_RPI_2_B(machine.board_id) || BOARD_IS_RPI_3_B(machine.board_id)){
 		rpi_i2c_buses = bcm283x_i2c_buses;
 		rpi_i2c_nbuses = BCM283X_rpi_NBUSES;
+	}
+	else if(BOARD_IS_RPI_4_B(machine.board_id)) {
+		rpi_i2c_buses = bcm283x_i2c_buses;
+		rpi_i2c_nbuses = BCM283X_rpi_NBUSES;
+		rpi_i2c_buses[0].mr_base = BCM2711_I2C0_BASE;
+		rpi_i2c_buses[1].mr_base = BCM2711_I2C1_BASE;
+		rpi_i2c_buses[0].irq = BCM2711_I2C0_IRQ;
+		rpi_i2c_buses[1].irq = BCM2711_I2C0_IRQ;
 	} else {
 		return EINVAL;
 	}

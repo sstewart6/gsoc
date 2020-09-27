@@ -114,6 +114,11 @@ static phys_bytes createpde(
 			| ARM_VM_SECTION_USER;
 	}
 
+	/* If this is a first level descriptor then default to changed because we
+	 * don't know if a second level descriptor has changed. */
+	if(pdeval & ARM_VM_PAGEDIR)
+		*changed = 1;
+
 	/* Write the pde value that we need into a pde that the kernel
 	 * can access, into the currently loaded page table so it becomes
 	 * visible.

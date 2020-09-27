@@ -29,6 +29,8 @@ extern bsp_table *bsp_tb;
 
 void * k_stacks;
 
+u32_t zero_page[4096] __attribute__ ((aligned(16384)));
+
 
 void fpu_init(void)
 {
@@ -188,6 +190,48 @@ void arch_ser_init(void)
 	bsp_tb->bsp_ser_init();
 }
 
+#define MB_MASK 0x001fffff
+extern u32_t _kern_phys_base;
+extern u32_t _kern_vir_base;
+
+inline void switch_ttbr0(u32_t new_ttbr0) {
+	struct proc *pr_curr = get_cpulocal_var(ptproc);
+	u32_t *ttbr_curr = pr_curr->p_seg.p_ttbr_v;
+	register u32_t zero_page_phys = ((u32_t) zero_page & MB_MASK) | (u32_t) &_kern_phys_base | ARM_TTBR_FLAGS_CACHED;
+	u32_t kern_pte = (u32_t) &_kern_vir_base >> 20;
+
+	zero_page[kern_pte] = ttbr_curr[kern_pte];
+
+	/* break-before-make (ARMv8 Arch ref 4.10.1) we can't trust the stack
+	   pointer or any regs until new_ttbr0 is written. */
+	asm volatile("dsb" : : : "memory");
+	asm volatile("isb" : : : "memory");
+	asm volatile("mcr p15, 0, %[zero_page_phys], c2, c0, 0" : : [zero_page_phys] "r" (zero_page_phys));
+	asm volatile("dsb" : : : "memory");
+	/* Invalidate TLB */
+	asm volatile("mcr p15, 0, %[zero], c8, c7, 0" : : [zero] "r" (0));
+	/* Invalidate instruction cache */
+	asm volatile("mcr p15, 0, %[zero], c7, c5, 0" : : [zero] "r" (0));
+	/* Invalidate branch prediction */
+	asm volatile("mcr p15, 0, %[zero], c7, c5, 6" : : [zero] "r" (0));
+	asm volatile("dsb" : : : "memory");
+	asm volatile("isb" : : : "memory");
+
+	/* Write new ttbr0 */
+	u32_t v = (new_ttbr0 & ARM_TTBR_ADDR_MASK ) | ARM_TTBR_FLAGS_CACHED;
+	asm volatile("mcr p15, 0, %[bar], c2, c0, 0 @ Write TTBR0\n\t"
+		: : [bar] "r" (v));
+	asm volatile("dsb" : : : "memory");
+	/* Invalidate TLB */
+	asm volatile("mcr p15, 0, %[zero], c8, c7, 0" : : [zero] "r" (0));
+	/* Invalidate instruction cache */
+	asm volatile("mcr p15, 0, %[zero], c7, c5, 0" : : [zero] "r" (0));
+	/* Invalidate branch prediction */
+	asm volatile("mcr p15, 0, %[zero], c7, c5, 6" : : [zero] "r" (0));
+	asm volatile("dsb" : : : "memory");
+	asm volatile("isb" : : : "memory");
+}
+
 /*===========================================================================*/
 /*			      __switch_address_space			     */
 /*===========================================================================*/
@@ -213,7 +257,7 @@ void __switch_address_space(struct proc *p, struct proc **__ptproc)
 	if (new_ttbr == orig_ttbr)
 	    return;
 
-	write_ttbr0(new_ttbr);
+	switch_ttbr0(new_ttbr);
 
 	*__ptproc = p;
 

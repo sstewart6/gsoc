@@ -89,7 +89,7 @@ typedef struct uart_port {
 } uart_port_t;
 
 static uart_port_t bcm2835_ports[] = {
-	{ PL011_UART0_BASE, 121 },	/* UART0 */
+	{ 0, 0 },	/* UART0 */
 	{ 0, 0 },
 	{ 0, 0 },
 	{ 0, 0 }
@@ -297,6 +297,17 @@ rs_init(tty_t *tp)
 	uart_port_t this_pl011;
 	char l[10];
 	struct minix_mem_range mr;
+    struct machine machine;
+
+    sys_getinfo(GET_MACHINE, &machine, sizeof(machine), 0, 0);
+	if(BOARD_IS_RPI_4_B(machine.board_id)) {
+		bcm2835_ports[0].base_addr = PL011_UART0_BASE_RPI4;
+		bcm2835_ports[0].irq = PL011_UART0_IRQ_RPI4;
+	}
+	else {
+		bcm2835_ports[0].base_addr = PL011_UART0_BASE;
+		bcm2835_ports[0].irq = PL011_UART0_IRQ;
+	}
 
 	/* Associate RS232 and TTY structures. */
 	line = tp - &tty_table[NR_CONS];

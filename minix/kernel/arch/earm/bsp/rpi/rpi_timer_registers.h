@@ -9,6 +9,7 @@
 #define RPI2_IRQ_ARMTIMER       3
 
 #define RPI_ST_BASE             0x3f003000
+#define RPI_4_ST_BASE           0xfe003000
 
 #define RPI_ST_CS               0x0
 #define RPI_ST_CLO              0x4

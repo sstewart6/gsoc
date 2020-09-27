@@ -438,7 +438,7 @@ sef_cb_init(int type, sef_init_info_t * UNUSED(info))
 		if (r != OK) {
 			return r;
 		}
-	} else if (BOARD_IS_RPI_2_B(machine.board_id) || BOARD_IS_RPI_3_B(machine.board_id)){
+	} else if (BOARD_IS_RPI_2_B(machine.board_id) || BOARD_IS_RPI_3_B(machine.board_id) || BOARD_IS_RPI_4_B(machine.board_id)){
 		/* Set callback and initialize the bus */
 		r = rpi_interface_setup(&process, i2c_bus_id);
 		if (r != OK) {
@@ -523,6 +523,6 @@ main(int argc, char *argv[])
 	memset(i2cdev, '\0', sizeof(i2cdev));
 	sef_local_startup();
 	chardriver_task(&i2c_tab);
-
+	
 	return OK;
 }

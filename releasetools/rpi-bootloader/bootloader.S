@@ -31,9 +31,15 @@
 #define ARM_MODE_HYP 0x1a
 #define ARM_MODE_MASK 0x1f
 #define ARM_MODE_SVC 0x13
+#define CORTEX_A72	0xd080
+#define PART_NUM_MASK	0x0fff0
 #define PSR_FIQ 0x40
 #define PSR_IRQ 0x80
 #define PSR_ABORT 0x100
+#define UART0_RPI2_BASE	0x3f201000  /* rpi2 */
+#define UART0_RPI4_BASE	0xfe201000	/* rpi4 */
+#define UART0_DR	0x0
+#define UART0_FR	0x18
 	
 	.section .text 
 	.balign 8
@@ -64,15 +70,14 @@ fiq_handler:
 	b	fiq_handler
 
 reset_handler:
-	ldr	r9, =device_tree
-	str r2, [r9]			/* save r2 which may be a device tree */
+	str r2, device_tree		/* save r2 which may be a device tree */
 	/* exit hypmode */
 	mrs r9, cpsr
 	and r9, r9, #ARM_MODE_MASK
 	teq	r9, #ARM_MODE_HYP
 	bne	not_hyp_mode		/* not hyp mode just continue */
 	bic r9, r9, #ARM_MODE_MASK
-	orr r9, r9, #(PSR_FIQ | PSR_IRQ | ARM_MODE_SVC)
+	orr r9, r9, #(PSR_FIQ | PSR_IRQ | ARM_MODE_SVC) 
 	orr r9, r9, #PSR_ABORT	/* mask imprecise abort */
 	add	lr, pc, #8			/* lr points to instruction after eret */
 							/* pc points 8 bytes ahead */
@@ -81,10 +86,23 @@ reset_handler:
 	eret
 
 not_hyp_mode:
-
 	/* Assign our vectors. */
 	ldr	r0, =vectors
 	mcr	p15, 0, r0, c12, c0, 0
+
+	ldr	sp, =stack_top		/* establish a stack */
+
+	ldr	r1, =UART0_RPI2_BASE	/* default to rpi2/3 */
+	str	r1, uart0_base
+	mrc p15, 0, r0, c0, c0, 0	/* Main ID register */
+	ldr	r1, =PART_NUM_MASK
+	and r0, r0, r1
+	ldr	r1, =CORTEX_A72
+	cmp	r0, r1
+	bne	rpi2
+	ldr	r1, =UART0_RPI4_BASE	/* CPU is rpi4 */
+	str	r1, uart0_base
+rpi2:
 
 	/* Set bit 6 of ACTLR (join SMP) */
 	mrc	p15, 0, r0, c1, c0, 1
@@ -124,7 +142,6 @@ secondary_cpu:
 
 	.global bootloader
 bootloader:
-	ldr	sp, =stack_top
 	mov r9, r2
 
 	/* Print banner */
@@ -284,14 +301,16 @@ load_file_failed:
  */
 putc:
 	/* Loop as long as FIFO isn't empty */
-	ldr	r1, =0x3f201018
+	ldr	r1, uart0_base
+	add	r1, #UART0_FR
 	ldr	r1, [r1]
 	and	r1, #0x80
 	tst	r1, #0x80
 	beq	putc
 
 	# Write character
-	ldr	r1, =0x3f201000
+	ldr	r1, uart0_base
+	add	r1, #UART0_DR
 	str	r0, [r1]
 
 	bx	lr
@@ -431,6 +450,8 @@ device_tree:
 argv:
 	.word	argv0
 	.word	argv1
+	.word	0x0
+uart0_base:
 	.word	0x0
 argv0:
 	.asciz "0x00200000"

@@ -15,6 +15,7 @@
 #include "bsp_intr.h"
 
 #include "cpufunc_timer.h"
+#include "rpi_v7timer.h"
 
 static irq_hook_t arm_timer_hook;
 
@@ -70,6 +71,11 @@ rpi_timer_init(unsigned freq)
 	    BOARD_IS_RPI_3_B(machine.board_id)) {
 		arm_timer.st_base = RPI_ST_BASE;
 		arm_timer.size = 0x1000;	/* 4K */
+		arm_timer.irq_nr = RPI_IRQ_ST_C3;
+	} else if(BOARD_IS_RPI_4_B(machine.board_id)) {
+		arm_timer.st_base = RPI_4_ST_BASE;
+		arm_timer.size = 0x1000;	/* 4K */
+		arm_timer.irq_nr = RPI4_TIMER_INT;
 	} else {
 		panic
 		    ("Can not do the timer setup. machine (0x%08x) is unknown\n",
@@ -77,8 +83,8 @@ rpi_timer_init(unsigned freq)
 	}
 
 	kern_phys_map_ptr(arm_timer.st_base, arm_timer.size,
-	    VMMF_UNCACHED | VMMF_WRITE,
-	    &st_timer_phys_map, (vir_bytes) & arm_timer.st_base);
+	 	VMMF_UNCACHED | VMMF_WRITE,
+	   	&st_timer_phys_map, (vir_bytes) & arm_timer.st_base);
 
 	/* Check if we need to workaround QEMU's lack of ST support */
 	if (mmio_read(arm_timer.st_base + RPI_ST_CLO) == 0) {
@@ -87,12 +93,11 @@ rpi_timer_init(unsigned freq)
 		 * timers. Not good.
 		 */
 		printf("Working around lack of system timer support - please fix\n");
-		arm_timer.st_workaround = 1;
-		arm_timer.irq_nr = RPI2_IRQ_ARMTIMER;
+			arm_timer.st_workaround = 1;
+			arm_timer.irq_nr = RPI2_IRQ_ARMTIMER;
 	}
 	else {
 		arm_timer.st_workaround = 0;
-		arm_timer.irq_nr = RPI_IRQ_ST_C3;
 
 		/* If we are not implementing the QEMU workaround mask the virtual
 			interrupt so we don't get spurious IRQ 3s */
@@ -101,8 +106,8 @@ rpi_timer_init(unsigned freq)
 		/* the timer is also mapped in user space hence the this */
 		/* second mapping and callback to set kerninfo frclock_tcrr */
 		kern_req_phys_map(arm_timer.st_base, ARM_PAGE_SIZE,
-		    VMMF_UNCACHED | VMMF_USER,
-		    &st_timer_user_phys_map, kern_phys_st_user_mapped, 0);
+	    	VMMF_UNCACHED | VMMF_USER,
+	    	&st_timer_user_phys_map, kern_phys_st_user_mapped, 0);
 	}
 }
 
@@ -122,12 +127,17 @@ rpi_timer_int_handler()
 		write_cntv_ctl(ARMTIMER_ENABLE);
 	}
 	else {
-		/* Set next timer alarm and enable timer */
-		u32_t next_alarm = mmio_read(arm_timer.st_base + RPI_ST_CLO);
-		next_alarm += RPI_ST_FREQ / arm_timer.freq;
+		if(BOARD_IS_RPI_4_B(machine.board_id)) {
+			write_phys_countdown_timer(get_clock_frequency() / RPI4_COUNTDOWN_TIMER);
+		}
+		else {
+			/* Set next timer alarm and enable timer */
+			u32_t next_alarm = mmio_read(arm_timer.st_base + RPI_ST_CLO);
+			next_alarm += RPI_ST_FREQ / arm_timer.freq;
 
-		mmio_write(arm_timer.st_base + RPI_ST_C3, next_alarm);
-		mmio_write(arm_timer.st_base + RPI_ST_CS, RPI_ST_M3);
+			mmio_write(arm_timer.st_base + RPI_ST_C3, next_alarm);
+			mmio_write(arm_timer.st_base + RPI_ST_CS, RPI_ST_M3);
+		}
 	}
 }
 

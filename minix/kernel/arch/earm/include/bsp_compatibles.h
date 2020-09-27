@@ -8,6 +8,8 @@ char *pi_compat_tb[] = {
 	"brcm,bcm2836",
 	"raspberrypi,3-model-b",
 	"brcm,bcm2837",
+	"raspberrypi,4-model-b",
+	"brcm,bcm2838",
 	NULL
 };
 

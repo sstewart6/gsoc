@@ -55,7 +55,8 @@
 # Enable audio (loads snd_bcm2835)
 dtparam=audio=on
 kernel=minix_rpi.bin
+dtoverlay=disable-bt
 [pi3]
-enable_uart=1
-dtoverlay=pi3-disable-bt
 cmdline=cmdline3.txt
+[pi4]
+cmdline=cmdline4.txt

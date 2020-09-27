@@ -4,6 +4,7 @@
 #include <minix/log.h>
 #include <minix/vm.h>
 #include <minix/spin.h>
+#include <minix/board.h>
 #include <sys/mman.h>
 
 #include <assert.h>
@@ -51,9 +52,17 @@ void mailbox_init()
 	uint32_t value;
 	value = 0;
 	struct minix_mem_range mr;
+	struct machine machine;
 
-	mr.mr_base = MBOX_BASE;
-	mr.mr_limit = MBOX_BASE + 0x1000;
+	sys_getinfo(GET_MACHINE, &machine, sizeof(machine), 0, 0);
+	if(BOARD_IS_RPI_4_B(machine.board_id)) {
+		mr.mr_base = MBOX_BASE_RPI4;
+		mr.mr_limit = MBOX_BASE_RPI4 + 0x1000;
+	}
+	else {
+		mr.mr_base = MBOX_BASE;
+		mr.mr_limit = MBOX_BASE + 0x1000;
+	}
 
 	/* grant ourself rights to map the register memory */
 	if (sys_privctl(SELF, SYS_PRIV_ADD_MEM, &mr) != 0) {
@@ -61,9 +70,12 @@ void mailbox_init()
 	}
 
 	/* Set the base address to use */
-	mbox_base =
-	    (uint32_t) vm_map_phys(SELF, (void *) MBOX_BASE,
-	    0x1000);
+	if(BOARD_IS_RPI_4_B(machine.board_id)) {
+		mbox_base = (uint32_t) vm_map_phys(SELF, (void *) MBOX_BASE_RPI4, 0x1000);
+	}
+	else {
+		mbox_base = (uint32_t) vm_map_phys(SELF, (void *) MBOX_BASE, 0x1000);
+	}
 
 	if (mbox_base == (uint32_t) MAP_FAILED)
 		panic("Unable to map MMC memory");

@@ -2,6 +2,7 @@
 #define _RPI_SERIAL_H
 
 #define RPI2_PL011_DEBUG_UART_BASE 0x3f201000
+#define RPI4_PL011_DEBUG_UART_BASE 0xfe201000
 
 #define PL011_DR        0x0
 #define PL011_FR        0x18

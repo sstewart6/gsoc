@@ -23,7 +23,9 @@
 #include "mmchost.h"
 #include <minix/ipc.h>
 #include <minix/com.h>
+#include <minix/board.h>
 #include "bcm2835_sdhost.h"
+#include <minix/sysutil.h>
 
 #define dsb() __asm__ __volatile__ ("dsb sy\n" : : : "memory")
 #define mb() __asm__ __volatile__ ("dmb 3\n" : : : "memory")
@@ -215,7 +217,7 @@ static inline void mmc_write32(volatile u32_t addr, u32_t w) {
 }
 
 static void bcm2835_dumpregs(struct bcm2835_sdhost *host) {
-	log_warn(&log, "\n");
+	log_warn(&log, "dumpregs\n");
 	log_warn(&log, "SDCMD 0x%08x\n", mmc_read32(host->io_base + host->regs->SDCMD));
 	log_warn(&log, "SDARG 0x%08x\n", mmc_read32(host->io_base + host->regs->SDARG));
 	log_warn(&log, "SDTOUT 0x%08x\n", mmc_read32(host->io_base + host->regs->SDTOUT));
@@ -628,7 +630,7 @@ static int bcm2835_send_cmd(struct bcm2835_sdhost *host, struct mmc_cmd *cmd, st
 		if(cmd)
 			return -1;
 	}
-	
+
 	edm = mmc_read32(host->io_base + host->regs->SDEDM);
 	fsm = edm & SDEDM_FSM_MASK;
 
@@ -831,6 +833,7 @@ int mmchs_host_init(struct mmc_host *host) {
 	struct minix_mem_range mem_range;
 	int rc;
 	message msg;
+	struct machine machine;
 
 	if(!power_on_sd_card()) {
 		log_warn(&log, "Unable to power on SD card.\n");
@@ -851,16 +854,6 @@ int mmchs_host_init(struct mmc_host *host) {
 	mmchs->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
 	mmchs->hcfg = SDHCFG_BUSY_IRPT_EN;
 
-	/* printf("msg size %d\n", sizeof(msg));
-	memset(&msg, 0, sizeof(msg));
-	msg.m_type = IRQ_DISABLE;
-	msg.m_krn_lsys_sys_irqctl.hook_id = 100;
-	rc = ipc_sendrec(KERNEL, &msg);
-	if(rc) {
-		log_warn(&log, "MMC: could not disable interrupts\n");
-		return 1;
-	} */
-		
 	bcm2835_sdhost_reset_internal(mmchs);
 
 	rc = sys_irqsetpolicy(mmchs->irq_nr, 0, &hook_id);
@@ -1596,6 +1589,32 @@ static int mmchs_host_write(struct sd_card *card, u32_t block_number, u32_t coun
 		bcm2835_write_blocks(card, mmchs, block_number + i, count, buf + (i * card->blk_size));
 	}
 	return OK;
+}
+
+static int get_clock_rate(u32_t clock_id) {
+	int mbox_fd, rc;
+	u32_t buf[8];
+
+	mbox_fd = open("/dev/mailbox", O_RDWR);
+
+	if(mbox_fd < 0) {
+		log_warn(&log, "ERROR opening /dev/mailbox\n");
+		return mbox_fd;
+	}
+
+	buf[0] = 32;	/* total size */
+	buf[1] = 0;		/* request */
+	buf[2] = 0x00030002;	/* tag */
+	buf[3] = 8;		/* buffer size */
+	buf[4] = 4;		/* request size */
+	buf[5] = clock_id;		/* device id */
+	buf[6] = 0;		/* state */	
+	buf[7] = 0;		/* end tag */
+	rc = write(mbox_fd, buf, 32);
+	rc = read(mbox_fd, buf, 32);	
+
+	close(mbox_fd);
+	return buf[6];
 }
 
 void host_initialize_host_structure_mmchs(struct mmc_host *host) {

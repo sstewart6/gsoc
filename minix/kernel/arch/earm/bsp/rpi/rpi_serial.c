@@ -44,6 +44,8 @@ rpi_ser_init()
 	if (BOARD_IS_RPI_2_B(machine.board_id) ||
 	    BOARD_IS_RPI_3_B(machine.board_id)) {
 		pl011_serial.base = RPI2_PL011_DEBUG_UART_BASE;
+	} else if(BOARD_IS_RPI_4_B(machine.board_id)) {
+		pl011_serial.base = RPI4_PL011_DEBUG_UART_BASE;
 	}
 
 	pl011_serial.size = 0x1000;	/* 4k */

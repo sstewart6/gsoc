@@ -5,10 +5,14 @@
 
 /* IRQ Numbers */
 #define BCM283X_I2C0_IRQ 47
+#define BCM2711_I2C0_IRQ 149
 
 /* Base Addresses */
 #define BCM283X_I2C0_BASE 0x3f205000
 #define BCM283X_I2C1_BASE 0x3f804000
+/* Base Addresses */
+#define BCM2711_I2C0_BASE 0xfe205000
+#define BCM2711_I2C1_BASE 0xfe804000
 
 /* Size of I2C Register Address Range */
 #define BCM283X_I2C0_SIZE 0x1000

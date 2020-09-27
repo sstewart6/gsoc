@@ -19,7 +19,7 @@ then
 	. ${SETTINGS_MINIX}
 fi
 
-BSP_NAME=rpi
+: ${BSP_NAME=rpi}
 : ${ARCH=evbearm-el}
 : ${TOOLCHAIN_TRIPLET=arm-elf32-minix-}
 : ${BUILDSH=build.sh}
@@ -126,6 +126,7 @@ mcopy -bsp -i ${WORK_DIR}/fat.img  ${MODDIR}/minix_rpi.bin ::minix_rpi.bin
 mcopy -bsp -i ${WORK_DIR}/fat.img  ${RELEASETOOLSDIR}/rpi-firmware/firmware-master/boot/* ::
 mcopy -bsp -i ${WORK_DIR}/fat.img  ${RELEASETOOLSDIR}/rpi-bootloader/cmdline.txt ::
 mcopy -bsp -i ${WORK_DIR}/fat.img  ${RELEASETOOLSDIR}/rpi-bootloader/cmdline3.txt ::
+mcopy -bsp -i ${WORK_DIR}/fat.img  ${RELEASETOOLSDIR}/rpi-bootloader/cmdline4.txt ::
 mcopy -bsp -i ${WORK_DIR}/fat.img  ${RELEASETOOLSDIR}/rpi-bootloader/config.txt ::
 
 # Clean image

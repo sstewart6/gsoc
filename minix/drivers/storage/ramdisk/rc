@@ -47,15 +47,17 @@ fi
 
 if [ X`/bin/sysenv arch` = Xearm ]
 then
-	if [ "$(/bin/sysenv board_name)" = "RPI_2_B" ] || [ "$(/bin/sysenv board_name)" = "RPI_3_B" ]
+	if [ "$(/bin/sysenv board_name)" = "RPI_2_B" ] || 
+		[ "$(/bin/sysenv board_name)" = "RPI_3_B" ] ||
+		[ "$(/bin/sysenv board_name)" = "RPI_4_B" ] 
 	then
 		echo "Starting mailbox service"
 		/bin/service -c up /service/mailbox -dev /dev/mailbox
 	fi
 	echo Starting the mmc driver
 	/bin/service -c up /service/mmc -dev /dev/c0d0
-	/bin/service up /service/spi -dev /dev/spi-1 -label spi.1 -args instance=1
-	/bin/service up /service/i2c -dev /dev/i2c-2 -label i2c.2 -args instance=2
+    /bin/service up /service/spi -dev /dev/spi-1 -label spi.1 -args instance=1
+    /bin/service up /service/i2c -dev /dev/i2c-2 -label i2c.2 -args instance=2
 	/bin/service up /service/pwmjack -dev /dev/audio
 fi
 

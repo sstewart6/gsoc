@@ -2,6 +2,7 @@
 #define _MBOX_H_
 
 #define MBOX_BASE (0x3f000000 + 0xb880)
+#define MBOX_BASE_RPI4 0xfe00b880 
 
 struct mailbox_t {
 	vir_bytes read;

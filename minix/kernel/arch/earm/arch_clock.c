@@ -42,7 +42,8 @@ int init_local_timer(unsigned freq)
 	} else if (BOARD_IS_BB(machine.board_id)) {
 		tsc_per_ms[0] = 15000;
 	} else if (BOARD_IS_RPI_2_B(machine.board_id) ||
-	           BOARD_IS_RPI_3_B(machine.board_id)) {
+	           BOARD_IS_RPI_3_B(machine.board_id) ||
+	           BOARD_IS_RPI_4_B(machine.board_id)) {
 		tsc_per_ms[0] = 1000;
 	}
 	else {
