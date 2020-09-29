@@ -32,6 +32,7 @@ if _GNU_GLOB_INTERFACE_VERSION >= GLOB_INTERFACE_VERSION <br />
 To build run <br />
 cd minix <br />
 export MAKECONF=etc/mk.conf <br />
+export HOST_CFLAGS="-O2 -fcommon" <br />
 ./releasetools/arm_sdimage_rpi.sh <br />
 
 ## Build for RPI4
