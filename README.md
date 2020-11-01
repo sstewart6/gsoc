@@ -27,6 +27,11 @@ if _GNU_GLOB_INTERFACE_VERSION == GLOB_INTERFACE_VERSION <br />
 needs to be changed to : <br />
 if _GNU_GLOB_INTERFACE_VERSION >= GLOB_INTERFACE_VERSION <br />
 
+external/gpl3/binutils/dist/gold/gold.h requires #include <string> <br />
+
+external/gpl3/gcc/dist/ needs patch 130-build_gcc-5_with_gcc-6.patch <br />
+patches/gcc: Backport fix for building gcc-5 with gcc-6 <br />
+
 ## Build for RPI2/3
 
 To build run <br />
